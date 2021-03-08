@@ -17,9 +17,9 @@ sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 hostname = socket.gethostname()
 print('run on %s' % hostname)
 
-RESULT_DIR     = "/data4/data/protein/result"
-DATA_DIR       = "/data5/data/protein"
-PRETRAINED_DIR = "/data5/data/pretrained"
+RESULT_DIR     = "../data/result"
+DATA_DIR       = "../data/protein"
+PRETRAINED_DIR = "../data/pretrained"
 TIF_DIR        = "/data2/data/protein"
 EXTERNEL_DIR   = "/data/data/protein"
 

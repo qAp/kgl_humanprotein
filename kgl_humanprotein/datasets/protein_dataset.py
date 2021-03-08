@@ -75,6 +75,7 @@ class ProteinDataset(Dataset):
         return crop_img
 
     def read_rgby(self, img_dir, img_id, index):
+        print('read_rgby')
         if self.is_external[index]:
             img_is_external = True
         else:
@@ -87,6 +88,9 @@ class ProteinDataset(Dataset):
             colors = ['red', 'green', 'blue', 'yellow']
 
         flags = cv2.IMREAD_GRAYSCALE
+        fns = [opj(img_dir, img_id + '_' + color + suffix) for color in colors]
+        for fn in fns:
+            assert os.path.exists(fn), f'Cannot find {fn}'
         img = [cv2.imread(opj(img_dir, img_id + '_' + color + suffix), flags)
                for color in colors]
         img = np.stack(img, axis=-1)
@@ -102,6 +106,7 @@ class ProteinDataset(Dataset):
             img_dir = self.img_dir
 
         image = self.read_rgby(img_dir, img_id, index)
+
         if image[0] is None:
             print(img_dir, img_id)
 

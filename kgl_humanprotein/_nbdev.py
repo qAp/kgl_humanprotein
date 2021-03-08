@@ -2,7 +2,7 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"ope": "01_config.config.ipynb",
+index = {"ope": "09_utils.common_util.ipynb",
          "sk": "01_config.config.ipynb",
          "hostname": "01_config.config.ipynb",
          "RESULT_DIR": "01_config.config.ipynb",
@@ -36,7 +36,7 @@ index = {"ope": "01_config.config.ipynb",
          "tensor_to_label": "03_datasets.tool.ipynb",
          "image_to_tensor": "03_datasets.tool.ipynb",
          "label_to_tensor": "03_datasets.tool.ipynb",
-         "opj": "03_datasets.tool.ipynb",
+         "opj": "09_utils.common_util.ipynb",
          "densenet121": "05_layers.backbone.densenet.ipynb",
          "densenet169": "05_layers.backbone.densenet.ipynb",
          "densenet201": "05_layers.backbone.densenet.ipynb",
@@ -90,6 +90,12 @@ index = {"ope": "01_config.config.ipynb",
          "ResnetClass": "06_networks.resnet.ipynb",
          "class_resnet34_dropout": "06_networks.resnet.ipynb",
          "class_resnet18_dropout": "06_networks.resnet.ipynb",
+         "datasets_names": "08_run.test.ipynb",
+         "split_names": "08_run.test.ipynb",
+         "augment_list": "08_run.test.ipynb",
+         "test": "08_run.test.ipynb",
+         "predict": "08_run.test.ipynb",
+         "prob_to_result": "08_run.test.ipynb",
          "train_multi_augment2": "09_utils.augment_util.ipynb",
          "augment_default": "09_utils.augment_util.ipynb",
          "augment_flipud": "09_utils.augment_util.ipynb",
@@ -99,6 +105,7 @@ index = {"ope": "01_config.config.ipynb",
          "augment_flipud_transpose": "09_utils.augment_util.ipynb",
          "augment_fliplr_transpose": "09_utils.augment_util.ipynb",
          "augment_flipud_lr_transpose": "09_utils.augment_util.ipynb",
+         "osp": "09_utils.common_util.ipynb",
          "Logger": "09_utils.log_util.ipynb"}
 
 modules = ["config/config.py",
@@ -114,7 +121,9 @@ modules = ["config/config.py",
            "networks/imageclsnet.py",
            "networks/inception_v3.py",
            "networks/resnet.py",
+           "run/test.py",
            "utils/augment_util.py",
+           "utils/common_util.py",
            "utils/log_util.py"]
 
 doc_url = "https://qAp.github.io/kgl_humanprotein/"

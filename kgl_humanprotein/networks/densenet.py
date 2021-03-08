@@ -4,6 +4,7 @@ __all__ = ['DensenetClass', 'class_densenet121_dropout', 'class_densenet121_larg
 
 # Cell
 import re
+import torch
 import torch.nn as nn
 
 from ..layers.backbone.densenet import *
