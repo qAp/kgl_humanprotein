@@ -75,7 +75,6 @@ class ProteinDataset(Dataset):
         return crop_img
 
     def read_rgby(self, img_dir, img_id, index):
-        print('read_rgby')
         if self.is_external[index]:
             img_is_external = True
         else:

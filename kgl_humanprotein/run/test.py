@@ -64,11 +64,7 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
         os.makedirs(submit_out_dir)
 
     # setting up the visible GPU
-    if torch.cuda.is_available():
-        os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
-        device = torch.device('cuda')
-    else:
-        device = torch.device('cpu')
+    os.environ['CUDA_VISIBLE_DEVICES'] = gpu_id
 
     augment = augment.split(',')
     for augment_ in augment:
@@ -88,12 +84,12 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
 
     # moving network to gpu and eval mode
     model = DataParallel(model)
-    model.to(device)
+    model.to(DEVICE)
     model.eval()
 
     # Data loading code
     if dataset == 'test':
-        test_split_file = opj(DATA_DIR, 'split', 'train.csv')
+        test_split_file = opj(DATA_DIR, 'test', 'train.csv')
     elif dataset == 'val':
         test_split_file = opj(DATA_DIR, 'split', split_name, 'random_valid_cv%d.csv' % fold)
     else:
@@ -113,31 +109,30 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
         sampler=SequentialSampler(test_dataset),
         batch_size=batch_size,
         drop_last=False,
-        num_workers=workers,
-        pin_memory=True,
+        num_workers=0, #num_workers=workers,
+        pin_memory=False, #pin_memory=True,
     )
-    return test_dataset
 
-#     seeds = [seed] if seeds is None else [int(i) for i in seeds.split(',')]
-#     for seed in seeds:
-#         test_dataset.random_crop = (seed != 0)
-#         for augment_ in augment:
-#             test_loader.dataset.transform = eval('augment_%s' % augment_)
-#             if crop_size > 0:
-#                 sub_submit_out_dir = opj(submit_out_dir, '%s_seed%d' % (augment_, seed))
-#             else:
-#                 sub_submit_out_dir = opj(submit_out_dir, augment_)
-#             if not ope(sub_submit_out_dir):
-#                 os.makedirs(sub_submit_out_dir)
-#             with torch.no_grad():
-#                 predict(test_loader, model, sub_submit_out_dir, dataset)
+    seeds = [seed] if seeds is None else [int(i) for i in seeds.split(',')]
+    for seed in seeds:
+        test_dataset.random_crop = (seed != 0)
+        for augment_ in augment:
+            test_loader.dataset.transform = eval('augment_%s' % augment_)
+            if crop_size > 0:
+                sub_submit_out_dir = opj(submit_out_dir, '%s_seed%d' % (augment_, seed))
+            else:
+                sub_submit_out_dir = opj(submit_out_dir, augment_)
+            if not ope(sub_submit_out_dir):
+                os.makedirs(sub_submit_out_dir)
+            with torch.no_grad():
+                predict(test_loader, model, sub_submit_out_dir, dataset)
 
 def predict(test_loader, model, submit_out_dir, dataset):
     all_probs = []
     img_ids = np.array(test_loader.dataset.img_ids)
     for it, iter_data in tqdm(enumerate(test_loader, 0), total=len(test_loader)):
         images, indices = iter_data
-        images = Variable(images.to(device), volatile=True)
+        images = Variable(images.to(DEVICE), volatile=True)
         outputs = model(images)
         logits = outputs
 
