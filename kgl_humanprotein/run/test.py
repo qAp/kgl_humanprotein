@@ -11,7 +11,7 @@ augment_list = ['default', 'flipud', 'fliplr','transpose', 'flipud_lr',
 # Cell
 
 def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
-         num_classes=28, in_channels=4, img_size=768, crop_size=512,
+         num_classes=19, in_channels=4, img_size=768, crop_size=512,
          batch_size=32, workers=3, fold=0, augment='default', seed=100,
          seeds=None, dataset='test', split_name='random_ext_folds5',
          predict_epoch=None):
@@ -22,7 +22,7 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
         outdir (str): Destination where predicted result should be saved.
         gpu_id (str): GPU id used for predicting. Default: ``'0'``
         arch (str): Model architecture. Default: ``'class_densenet121_dropout)'``
-        num_classes (int): Number of classes. Default: 28
+        num_classes (int): Number of classes. Default: 19
         in_channels (int): In channels. Default: 4
         img_size (int):  Image size. Default: 768
         crop_size (int): Crop size. Default: 512
@@ -79,6 +79,11 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
 
     log.write(">> Loading network:\n>>>> '{}'\n".format(network_path))
     checkpoint = torch.load(network_path)
+    _, in_features = checkpoint['state_dict']['logit.weight'].shape
+    logit_weight = torch.randn(num_classes, in_features)
+    logit_bias = torch.randn(num_classes)
+    checkpoint['state_dict']['logit.weight'] = logit_weight
+    checkpoint['state_dict']['logit.bias'] = logit_bias
     model.load_state_dict(checkpoint['state_dict'])
     log.write(">>>> loaded network:\n>>>> epoch {}\n".format(checkpoint['epoch']))
 
