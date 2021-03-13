@@ -19,7 +19,9 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
     PyTorch Protein Classification
 
     Args:
-        outdir (str): Destination where predicted result should be saved.
+        outdir (str): Name of directory where model is saved.  This will
+            also be used to name a newly created directory for saving the
+            predicted results.
         gpu_id (str): GPU id used for predicting. Default: ``'0'``
         arch (str): Model architecture. Default: ``'class_densenet121_dropout)'``
         num_classes (int): Number of classes. Default: 19
@@ -94,7 +96,7 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
 
     # Data loading code
     if dataset == 'test':
-        test_split_file = opj(DATA_DIR, 'test', 'train.csv')
+        test_split_file = opj(DATA_DIR, 'test', 'test.parquet')
     elif dataset == 'val':
         test_split_file = opj(DATA_DIR, 'split', split_name, 'random_valid_cv%d.csv' % fold)
     else:
@@ -131,6 +133,10 @@ def test(outdir, gpu_id='0', arch='class_densenet121_dropout',
                 os.makedirs(sub_submit_out_dir)
             with torch.no_grad():
                 predict(test_loader, model, sub_submit_out_dir, dataset)
+
+    return submit_out_dir
+
+
 
 def predict(test_loader, model, submit_out_dir, dataset):
     all_probs = []
