@@ -20,6 +20,7 @@ import base64
 import zipfile
 
 from .config.config import *
+from .utils.common_util import *
 
 # Cell
 def imgids_from_directory(path):
@@ -39,40 +40,39 @@ imgids_testing = [
 
 # Cell
 
-def read_img(
-    dir_data, image_id, color,
-    train_or_test='train', image_size=None, suffix='.png'):
+def read_img(dir_data, image_id, color, image_size=None, suffix='.png'):
+    filename = dir_data/f'{image_id}_{color}{suffix}'
+    assert filename.exists(), f'not found {filename}'
 
-    filename = (f'{dir_data}/{train_or_test}/'
-                f'{image_id}_{color}{suffix}')
-    assert os.path.exists(filename), f'not found {filename}'
-    img = cv2.imread(filename, cv2.IMREAD_UNCHANGED)
+    img = cv2.imread(str(filename), cv2.IMREAD_UNCHANGED)
+
     if image_size is not None:
         img = cv2.resize(img, (image_size, image_size))
+
     if img.max() > 255:
         img_max = img.max()
         img = (img/255).astype('uint8')
+
     return img
 
-def load_RGBY_image(
-    dir_data, image_id, rgb_only=False,
-    train_or_test='train', image_size=None, suffix='.png'):
+
+
+def load_RGBY_image(dir_data, image_id,
+                    rgb_only=False, suffix='.png', image_size=None):
 
     red, green, blue = [
-        read_img(
-            dir_data, image_id, color,
-            train_or_test, image_size, suffix)
+        read_img(dir_data, image_id, color, image_size, suffix)
         for color in ('red', 'green', 'blue')]
 
     channels = [red, green, blue]
 
     if not rgb_only:
         yellow = read_img(
-            dir_data, image_id, "yellow",
-            train_or_test, image_size, suffix)
+            dir_data, image_id, "yellow", image_size, suffix)
         channels.append(yellow)
 
-    stacked_images = np.transpose(np.array(channels), (1,2,0))
+    stacked_images = np.transpose(np.array(channels), (1, 2, 0))
+
     return stacked_images
 
 # Cell
