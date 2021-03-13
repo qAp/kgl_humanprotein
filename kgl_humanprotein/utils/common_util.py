@@ -4,7 +4,10 @@ __all__ = ['osp', 'ope', 'opj']
 
 # Cell
 import os
+from pathlib import Path
 
 osp = os.path
 ope = os.path.exists
 opj = os.path.join
+
+Path.ls = lambda o: list(o.iterdir())
