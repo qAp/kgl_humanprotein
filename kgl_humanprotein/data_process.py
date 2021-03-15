@@ -102,17 +102,13 @@ class CellSegmentator(cellsegmentator.CellSegmentator):
                 [str(n) for n in fns]
                 for fns in [red, yellow, blue])
 
-        print('Predicting nuclei and cells...', end='')
         segs_nucl = self.pred_nuclei(blue)
         segs_cell = self.pred_cells([red, yellow, blue])
-        print(' done.')
 
-        print('Labelling cells...', end='')
         masks = []
         for seg_nucl, seg_cell in zip(segs_nucl, segs_cell):
             mask_nucl, mask_cell = label_cell(seg_nucl, seg_cell)
             masks.append((mask_nucl, mask_cell))
-        print(' done.')
 
         return masks
 
