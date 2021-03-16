@@ -20,9 +20,9 @@ print('run on %s' % hostname)
 
 DEVICE = torch.device('gpu' if torch.cuda.is_available() else 'cpu')
 
-RESULT_DIR     = "../data/result"
-DATA_DIR       = "../data/protein"
-PRETRAINED_DIR = "../data/pretrained"
+RESULT_DIR     = "../../kgl_humanprotein_data/result"
+DATA_DIR       = "../../kgl_humanprotein_data/protein"
+PRETRAINED_DIR = "../../kgl_humanprotein_data/pretrained"
 TIF_DIR        = "/data2/data/protein"
 EXTERNEL_DIR   = "/data/data/protein"
 
