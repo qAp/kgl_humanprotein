@@ -68,13 +68,13 @@ def segment_cells(dir_data, imgids, segmentator):
 
 # Cell
 
-def generate_crops(df_cells, img_size, dir_crops=Path('./')):
+def generate_crops(dir_data, df_cells, img_size, dir_crops=Path('./')):
 
-    for _, r in df_cells.iterrows():
+    for _, r in tqdm(df_cells.iterrows()):
         cellid, rle, bbox = r['Id'], r['rle'], r['bbox']
 
         imgid = cellid.split('_')[0]
-        img = load_RGBY_image(dir_hpa/'test', imgid)
+        img = load_RGBY_image(dir_data, imgid)
 
         crop = crop_image(img, bbox, rle=rle)
         crop = pad_to_square(crop)
