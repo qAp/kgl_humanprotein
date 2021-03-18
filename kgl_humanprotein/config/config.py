@@ -18,7 +18,7 @@ sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 hostname = socket.gethostname()
 print('run on %s' % hostname)
 
-DEVICE = torch.device('gpu' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 RESULT_DIR     = "../../kgl_humanprotein_data/result"
 DATA_DIR       = "../../kgl_humanprotein_data/protein"
