@@ -2,12 +2,13 @@
 
 __all__ = ['imgids_from_directory', 'imgids_testing', 'read_img', 'load_RGBY_image', 'CellSegmentator', 'get_cellmask',
            'encode_binary_mask', 'coco_rle_encode', 'mask2rles', 'rles2bboxes', 'crop_image', 'remove_faint_greens',
-           'pad_to_square']
+           'pad_to_square', 'segment_image', 'segment_images']
 
 # Cell
 import os
 from pathlib import Path
 from itertools import groupby
+import functools
 import mlcrate
 from multiprocessing import Pool
 from pycocotools import mask as mutils
@@ -18,6 +19,7 @@ import cv2, PIL
 import zlib
 import base64
 import zipfile
+import uuid
 
 from .config.config import *
 from .utils.common_util import *
@@ -231,3 +233,27 @@ def pad_to_square(img):
     img_padded = np.zeros((sz, sz, c), dtype=img.dtype)
     img_padded[:h, :w] = img.copy()
     return img_padded
+
+# Cell
+
+def segment_image(dir_img=None, imgid=None, segmentator=None):
+    img = load_RGBY_image(dir_img, imgid)
+    mask = get_cellmask(img, segmentator)
+    rles = mask2rles(mask)
+    bboxes = rles2bboxes(rles)
+
+    ids = [f'{imgid}_{i}' for i in range(len(rles))]
+    df = pd.DataFrame(
+        {'Id': ids, 'rle': rles, 'bbox': list(bboxes)})
+
+    return df
+
+
+
+def segment_images(dir_img, imgids, segmentator):
+    df = pd.DataFrame()
+    for imgid in tqdm(imgids, total=len(imgids)):
+        df_img = segment_image(dir_img, imgid, segmentator)
+        df = df.append(df_img, ignore_index=True)
+
+    return df
