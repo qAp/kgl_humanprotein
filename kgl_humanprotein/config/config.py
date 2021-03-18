@@ -14,11 +14,17 @@ import socket
 import warnings
 warnings.filterwarnings('ignore')
 
+# Cell
+
 sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 hostname = socket.gethostname()
 print('run on %s' % hostname)
 
+# Cell
+
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Cell
 
 RESULT_DIR     = "../../kgl_humanprotein_data/result"
 DATA_DIR       = "../../kgl_humanprotein_data/protein"
@@ -26,9 +32,13 @@ PRETRAINED_DIR = "../../kgl_humanprotein_data/pretrained"
 TIF_DIR        = "/data2/data/protein"
 EXTERNEL_DIR   = "/data/data/protein"
 
+# Cell
+
 PI  = np.pi
 INF = np.inf
 EPS = 1e-12
+
+# Cell
 
 IMG_SIZE      = 512
 NUM_CLASSES   = 28
@@ -40,37 +50,31 @@ EXTERNAL      = 'External'
 ANTIBODY      = 'antibody'
 ANTIBODY_CODE = 'antibody_code'
 
+# Cell
 LABEL_NAMES = {
-    0:  "Nucleoplasm",
-    1:  "Nuclear membrane",
-    2:  "Nucleoli",
-    3:  "Nucleoli fibrillar center",
-    4:  "Nuclear speckles",
-    5:  "Nuclear bodies",
-    6:  "Endoplasmic reticulum",
-    7:  "Golgi apparatus",
-    8:  "Peroxisomes",
-    9:  "Endosomes",
-    10:  "Lysosomes",
-    11:  "Intermediate filaments",
-    12:  "Actin filaments",
-    13:  "Focal adhesion sites",
-    14:  "Microtubules",
-    15:  "Microtubule ends",
-    16:  "Cytokinetic bridge",
-    17:  "Mitotic spindle",
-    18:  "Microtubule organizing center",
-    19:  "Centrosome",
-    20:  "Lipid droplets",
-    21:  "Plasma membrane",
-    22:  "Cell junctions",
-    23:  "Mitochondria",
-    24:  "Aggresome",
-    25:  "Cytosol",
-    26:  "Cytoplasmic bodies",
-    27:  "Rods & rings"
-}
+    0: 'Nucleoplasm',
+    1: 'Nuclear membrane',
+    2: 'Nucleoli',
+    3: 'Nucleoli fibrillar center',
+    4: 'Nuclear speckles',
+    5: 'Nuclear bodies',
+    6: 'Endoplasmic reticulum',
+    7: 'Golgi apparatus',
+    8: 'Intermediate filaments',
+    9: 'Actin filaments',
+    10: 'Microtubules',
+    11: 'Mitotic spindle',
+    12: 'Centrosome',
+    13: 'Plasma membrane',
+    14: 'Mitochondria',
+    15: 'Aggresome',
+    16: 'Cytosol',
+    17: 'Vesicles and punctate cytosolic patterns',
+    18: 'Negative'}
+
 LABEL_NAME_LIST = [LABEL_NAMES[idx] for idx in range(len(LABEL_NAMES))]
+
+# Cell
 
 COLOR_INDEXS = {
     'red': 0,
