@@ -179,7 +179,7 @@ def test(out_dir, gpu_id='0', arch='class_densenet121_dropout',
 
     # Data loading code
     if dataset == 'test':
-        test_split_file = opj(DATA_DIR, 'test', 'test.parquet')
+        test_split_file = opj(DATA_DIR, 'test', 'test.feather')
     elif dataset == 'val':
         test_split_file = opj(DATA_DIR, 'split', split_name, 'random_valid_cv%d.csv' % fold)
     else:

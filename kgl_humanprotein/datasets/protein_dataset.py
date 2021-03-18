@@ -37,7 +37,7 @@ class ProteinDataset(Dataset):
         self.crop_size = crop_size
         self.random_crop = random_crop
         data_type = 'train' if is_trainset else 'test'
-        split_df = pd.read_parquet(split_file)
+        split_df = pd.read_feather(split_file)
         base_dir = DATA_DIR
 
         if EXTERNAL not in split_df.columns:
