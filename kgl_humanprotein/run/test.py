@@ -50,6 +50,7 @@ def generate_crops(dir_data, df_cells, img_size, dir_crops=Path('./')):
             cv2.imwrite(str(fn_dst), crop[..., channel])
 
 # Cell
+
 datasets_names = ['test', 'val']
 split_names = ['random_ext_folds5', 'random_ext_noleak_clean_folds5']
 augment_list = ['default', 'flipud', 'fliplr','transpose', 'flipud_lr',
@@ -253,6 +254,10 @@ def write_submission_csv(preds, probs, dir_out=Path('/kaggle/working')):
                 labels = np.array([int(label) for label in labels])
 
                 confidences = probs[i, labels]
+
+                # To debug submission,
+                # include just the first predicted label
+                labels, confidences = labels[:1], confidences[:1]
 
                 for label, confidence in zip(labels, confidences):
                     pred_string.append(f'{label} {confidence} {rle}')
