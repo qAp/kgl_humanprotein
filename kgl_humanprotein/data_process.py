@@ -2,7 +2,8 @@
 
 __all__ = ['imgids_from_directory', 'imgids_testing', 'read_img', 'load_RGBY_image', 'CellSegmentator',
            'load_segmentator', 'get_cellmask', 'segment_image', 'segment_images', 'encode_binary_mask',
-           'coco_rle_encode', 'mask2rles', 'rles2bboxes', 'crop_image', 'remove_faint_greens', 'pad_to_square']
+           'coco_rle_encode', 'mask2rles', 'rles2bboxes', 'crop_image', 'remove_faint_greens', 'pad_to_square',
+           'rle_encode', 'rle_decode', 'resize_image', 'save_image', 'generate_crops']
 
 # Cell
 import os
@@ -281,3 +282,91 @@ def pad_to_square(img):
         offset1 = (h - w) - offset0
         img_padded[:, offset0:-offset1] = img.copy()
     return img_padded
+
+# Cell
+
+def rle_encode(img, mask_val=1):
+    """
+    Turns our masks into RLE encoding to easily store them
+    and feed them into models later on
+    https://en.wikipedia.org/wiki/Run-length_encoding
+
+    Args:
+        img (np.array): Segmentation array
+        mask_val (int): Which value to use to create the RLE
+
+    Returns:
+        RLE string
+
+    """
+    dots = np.where(img.T.flatten() == mask_val)[0]
+    run_lengths = []
+    prev = -2
+    for b in dots:
+        if (b>prev+1): run_lengths.extend((b + 1, 0))
+        run_lengths[-1] += 1
+        prev = b
+
+    return ' '.join([str(x) for x in run_lengths])
+
+
+def rle_decode(rle_string, height, width):
+    """ Convert RLE sttring into a binary mask
+
+    Args:
+        rle_string (rle_string): Run length encoding containing
+            segmentation mask information
+        height (int): Height of the original image the map comes from
+        width (int): Width of the original image the map comes from
+
+    Returns:
+        Numpy array of the binary segmentation mask for a given cell
+    """
+    rows,cols = height,width
+    rle_numbers = [int(num_string) for num_string in rle_string.split(' ')]
+    rle_pairs = np.array(rle_numbers).reshape(-1,2)
+    img = np.zeros(rows*cols,dtype=np.uint8)
+    for index,length in rle_pairs:
+        index -= 1
+        img[index:index+length] = 255
+    img = img.reshape(cols,rows)
+    img = img.T
+    img = (img / 255).astype(np.uint8)
+    return img
+
+
+# Cell
+
+def resize_image(img, sz):
+    return cv2.resize(img, (sz, sz), interpolation=cv2.INTER_LINEAR)
+
+
+def save_image(dst, imgid, img):
+    dst = Path(dst)
+    for ch, color in enumerate(['red', 'green', 'blue', 'yellow']):
+        cv2.imwrite(str(dst / f'{imgid}_{color}.png'), img[..., ch])
+
+
+def generate_crops(df_cells, src, dst, out_sz=768):
+    max_greens = []
+
+    imgids = df_cells['Id'].apply(lambda o: o.split('_')[0])
+
+    for imgid, df_img in df_cells.groupby(imgids):
+        img = load_RGBY_image(src, imgid)
+
+        for cellid, df_cell in df_img.groupby('Id'):
+            rle = df_cell['rle'].item()
+            bbox = df_cell['bbox'].item()
+            bmask = mutils.decode(rle)
+            crop = crop_image(img, bbox, bmask=bmask)
+            crop = pad_to_square(crop)
+
+            max_greens.append(np.max(crop[..., 1]))
+
+            if out_sz is not None:
+                crop = resize_image(crop, out_sz)
+
+            save_image(dst, cellid, crop)
+
+    df_cells['max_green'] = max_greens
