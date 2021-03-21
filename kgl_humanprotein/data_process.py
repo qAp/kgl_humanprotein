@@ -3,7 +3,7 @@
 __all__ = ['imgids_from_directory', 'imgids_testing', 'read_img', 'load_RGBY_image', 'save_image', 'CellSegmentator',
            'load_segmentator', 'get_cellmask', 'encode_binary_mask', 'coco_rle_encode', 'rle_encode', 'rle_decode',
            'mask2rles', 'rles2bboxes', 'segment_image', 'segment_images', 'resize_image', 'crop_image',
-           'remove_faint_greens', 'pad_to_square']
+           'remove_faint_greens', 'pad_to_square', 'load_seg_trn', 'split_cells', 'generate_crops']
 
 # Cell
 import os
@@ -357,3 +357,89 @@ def pad_to_square(img):
         offset1 = (h - w) - offset0
         img_padded[:, offset0:-offset1] = img.copy()
     return img_padded
+
+# Cell
+def load_seg_trn(pth_csv):
+    '''
+    Loads @dscettler8845's segmentation results for train set.
+    '''
+    df = pd.read_csv(pth_csv)
+
+    df['cell_masks'] = df['cell_masks'].apply(ast.literal_eval)
+
+    df['bboxes'] = (
+        df['bboxes'].apply(lambda o: np.array(ast.literal_eval(o)))
+    )
+
+    return df
+
+# Cell
+
+def _split_cells(df_img):
+    '''
+    Expand a row representing a segmented image into multiple rows
+    representing the cells in the image.
+    '''
+    imgid = df_img['ID'].item()
+    sz = df_img['dimension'].item()
+    rles = df_img['cell_masks'].item()
+    bboxes = list(df_img['bboxes'].item())
+    cellids = [f'{imgid}_{i}' for i in range(len(rles))]
+
+    rles = [
+        mutils.encode(rle_decode(rle, sz, sz)) for rle in rles]
+
+    df = pd.DataFrame(
+        {'Id': cellids, 'rle': rles, 'bbox': bboxes})
+    df['Target'] = df_img['Label'].item()
+
+    return df
+
+
+def split_cells(df_seg):
+    '''
+    Args:
+        df_seg (pd.DataFrame): Each row is an image.
+        df_cells (pd.DataFrame): Each row is a cell.
+    '''
+    df_cells = (
+        df_seg.groupby('ID')
+        .apply(_split_cells).reset_index(drop=True)
+    )
+    return df_cells
+
+# Cell
+
+def generate_crops(df_cells, src, dst, out_sz=768):
+    '''
+    - Crop out each cell from its image.
+    - Resize the crop to a square and save to disk.
+    - Record the crop's maximum green channel value.
+    '''
+    df_cells = df_cells.copy(deep=True)
+
+    max_greens = []
+
+    imgids = df_cells['Id'].apply(lambda o: o.split('_')[0])
+
+    for imgid, df_img in df_cells.groupby(imgids):
+        img = load_RGBY_image(src, imgid)
+
+        for cellid, df_cell in df_img.groupby('Id'):
+            rle = df_cell['rle'].item()
+            bbox = df_cell['bbox'].item()
+            bmask = mutils.decode(rle)
+            crop = crop_image(img, bbox, bmask=bmask)
+            crop = pad_to_square(crop)
+
+            max_green = np.max(crop[..., COLOR_INDEXS['green']])
+            max_greens.append(max_green)
+
+            if out_sz is not None:
+                crop = resize_image(crop, out_sz)
+
+            save_image(dst, cellid, crop)
+
+    df_cells['max_green'] = max_greens
+
+    return df_cells
