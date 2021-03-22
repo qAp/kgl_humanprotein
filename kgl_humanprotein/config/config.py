@@ -8,11 +8,14 @@ __all__ = ['ope', 'sk', 'hostname', 'DEVICE', 'RESULT_DIR', 'DATA_DIR', 'PRETRAI
 
 import os
 ope = os.path.exists
+from pathlib import Path
 import numpy as np
 import torch
 import socket
 import warnings
 warnings.filterwarnings('ignore')
+
+from ..utils.common_util import *
 
 # Cell
 
@@ -26,11 +29,11 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Cell
 
-RESULT_DIR     = "../../kgl_humanprotein_data/result"
-DATA_DIR       = "../../kgl_humanprotein_data/protein"
-PRETRAINED_DIR = "../../kgl_humanprotein_data/pretrained"
-TIF_DIR        = "/data2/data/protein"
-EXTERNEL_DIR   = "/data/data/protein"
+RESULT_DIR     = Path("../../kgl_humanprotein_data/result")
+DATA_DIR       = Path("../../kgl_humanprotein_data/protein")
+PRETRAINED_DIR = Path("../../kgl_humanprotein_data/pretrained")
+TIF_DIR        = Path("/data2/data/protein")
+EXTERNEL_DIR   = Path("/data/data/protein")
 
 # Cell
 
