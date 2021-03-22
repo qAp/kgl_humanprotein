@@ -3,7 +3,8 @@
 __all__ = ['imgids_from_directory', 'imgids_testing', 'read_img', 'load_RGBY_image', 'save_image', 'CellSegmentator',
            'load_segmentator', 'get_cellmask', 'encode_binary_mask', 'coco_rle_encode', 'rle_encode', 'rle_decode',
            'mask2rles', 'rles2bboxes', 'segment_image', 'segment_images', 'resize_image', 'crop_image',
-           'remove_faint_greens', 'pad_to_square', 'load_seg_trn', 'split_cells', 'generate_crops']
+           'remove_faint_greens', 'pad_to_square', 'load_seg_trn', 'split_cells', 'generate_crops', 'fill_targets',
+           'generate_meta']
 
 # Cell
 import os
@@ -22,6 +23,7 @@ import zlib
 import base64
 import zipfile
 import uuid
+from sklearn.preprocessing import LabelEncoder
 
 from .config.config import *
 from .utils.common_util import *
@@ -443,3 +445,33 @@ def generate_crops(df_cells, src, dst, out_sz=768):
     df_cells['max_green'] = max_greens
 
     return df_cells
+
+# Cell
+
+def fill_targets(row):
+    row.Target = np.array(row.Target.split("|")).astype(np.int)
+    for num in row.Target:
+        name = LABEL_NAMES[int(num)]
+        row.loc[name] = 1
+    row.Target = "|".join(np.sort(np.unique(row.Target)).astype(str).tolist())
+    return row
+
+
+def generate_meta(meta_dir, fname, dataset='train'):
+    is_external = True if dataset == 'external' else False
+
+    label_df = pd.read_feather(DATA_DIR/'raw'/fname)
+    for key in LABEL_NAMES.keys():
+        label_df[LABEL_NAMES[key]] = 0
+    meta_df = label_df.apply(fill_targets, axis=1)
+    meta_df[EXTERNAL] = is_external
+
+    if is_external:
+        meta_df[ANTIBODY] = meta_df[ID].apply(lambda x: x.split('_')[0])
+
+        clf = LabelEncoder()
+        meta_df[ANTIBODY_CODE] = clf.fit_transform(meta_df[ANTIBODY])
+        meta_df[ANTIBODY] = meta_df[ANTIBODY].astype(int)
+
+    meta_fname = meta_dir/f'{dataset}_meta.feather'
+    meta_df.to_feather(meta_fname)
