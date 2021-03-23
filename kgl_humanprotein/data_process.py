@@ -4,7 +4,8 @@ __all__ = ['imgids_from_directory', 'imgids_testing', 'read_img', 'load_RGBY_ima
            'load_segmentator', 'get_cellmask', 'encode_binary_mask', 'coco_rle_encode', 'rle_encode', 'rle_decode',
            'mask2rles', 'rles2bboxes', 'segment_image', 'segment_images', 'resize_image', 'crop_image',
            'remove_faint_greens', 'pad_to_square', 'load_seg_trn', 'split_cells', 'generate_crops', 'fill_targets',
-           'generate_meta']
+           'generate_meta', 'get_meta', 'create_split_file', 'create_random_split', 'load_match_info',
+           'generate_noleak_split']
 
 # Cell
 import os
@@ -475,3 +476,151 @@ def generate_meta(meta_dir, fname, dataset='train'):
 
     meta_fname = meta_dir/f'{dataset}_meta.feather'
     meta_df.to_feather(meta_fname)
+
+# Cell
+
+from sklearn.model_selection import KFold,StratifiedKFold
+# https://www.kaggle.com/c/human-protein-atlas-image-classification/discussion/67819
+from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
+
+# Cell
+
+def get_meta():
+    meta_dir = DATA_DIR/'meta'
+
+    train_meta_fname = meta_dir/'train_meta.feather'
+    train_meta = pd.read_feather(train_meta_fname)
+
+    external_meta_fname = meta_dir/'external_meta.feather'
+    if external_meta_fname.exists():
+        external_meta = pd.read_feather(external_meta_fname)
+    else:
+        external_meta = None
+
+    return train_meta, external_meta
+
+# Cell
+
+def create_split_file(data_set="train", name="train", num=None):
+    split_dir = DATA_DIR/'split'
+    split_dir.mkdir(exist_ok=True)
+
+    if data_set=='train':
+        ds = pd.read_feather(DATA_DIR/'meta'/'train_meta.feather')
+    else:
+        ds = pd.read_feather(DATA_DIR/'raw'/'test.feather')
+
+    if num is None:
+        split_df = ds
+    elif name == "valid":
+        split_df = ds.iloc[-num:].copy().reset_index()
+    else:
+        split_df = ds.iloc[:num]
+
+    num = len(split_df)
+    print("create split file: %s_%d" % (name, num))
+    fname = split_dir/f"{name}_{num}.feather"
+    split_df.to_feather(fname)
+
+
+def create_random_split(
+    train_meta, external_meta=None, n_splits=4, alias='random'):
+
+    split_dir = DATA_DIR/'split'/f'{alias}_folds{n_splits}'
+    split_dir.mkdir(exist_ok=True)
+
+    kf = MultilabelStratifiedKFold(
+        n_splits=n_splits, shuffle=True, random_state=100)
+
+    train_indices_list, valid_indices_list = [], []
+    for train_indices, valid_indices in kf.split(
+        train_meta, train_meta[LABEL_NAME_LIST].values):
+
+        train_indices_list.append(train_indices)
+        valid_indices_list.append(valid_indices)
+
+    ext_train_indices_list, ext_valid_indices_list = [], []
+    if external_meta is not None:
+        ext_kf = MultilabelStratifiedKFold(
+            n_splits=n_splits, shuffle=True, random_state=100)
+
+        for ext_train_indices, ext_valid_indices in ext_kf.split(
+            external_meta, external_meta[LABEL_NAME_LIST].values):
+
+            ext_train_indices_list.append(ext_train_indices)
+            ext_valid_indices_list.append(ext_valid_indices)
+
+    for idx in range(n_splits):
+        train_split_df = train_meta.loc[train_indices_list[idx]]
+        valid_split_df = train_meta.loc[valid_indices_list[idx]]
+
+        if external_meta is not None:
+            train_split_df = pd.concat(
+                (train_split_df,
+                 external_meta.loc[ext_train_indices_list[idx]]),
+                ignore_index=True)
+
+            valid_split_df = pd.concat(
+                (valid_split_df,
+                 external_meta.loc[ext_valid_indices_list[idx]]),
+                ignore_index=True)
+
+            train_split_df = train_split_df[[ID, TARGET, EXTERNAL, ANTIBODY, ANTIBODY_CODE] + LABEL_NAME_LIST]
+            valid_split_df = valid_split_df[[ID, TARGET, EXTERNAL, ANTIBODY, ANTIBODY_CODE] + LABEL_NAME_LIST]
+
+        if idx == 0:
+            for name in LABEL_NAMES.values():
+                print(name, (train_split_df[name]==1).sum(), (valid_split_df[name]==1).sum())
+
+        fname = split_dir/f'random_train_cv{idx}.feather'
+        print("create split file: %s, shape: %s" % (fname, str(train_split_df.shape)))
+        train_split_df.reset_index().to_feather(fname)
+
+        fname = split_dir/f'random_valid_cv{idx}.feather'
+        print("create split file: %s, shape: %s" % (fname, str(valid_split_df.shape)))
+        valid_split_df.reset_index().to_feather(fname)
+
+
+def load_match_info():
+    train_meta_df = pd.read_csv(opj(DATA_DIR, 'meta', 'train_meta.csv'))
+    external_meta_df = pd.read_csv(opj(DATA_DIR, 'meta', 'external_meta.csv'))
+    meta_df = pd.concat((train_meta_df[[ID, TARGET]], external_meta_df[[ID, TARGET]]), axis=0, ignore_index=True)
+
+    match_df = pd.read_csv(opj(DATA_DIR, 'meta', 'train_match_external.csv.gz'), usecols=['Train', 'Extra'])
+    match_df = pd.merge(match_df, meta_df.rename(columns={ID: 'Train'}), on='Train', how='left')
+    match_df = match_df.rename(columns={TARGET: 'Train_%s' % TARGET})
+    match_df = pd.merge(match_df, meta_df.rename(columns={ID: 'Extra'}), on='Extra', how='left')
+    match_df = match_df.rename(columns={TARGET: 'Extra_%s' % TARGET})
+
+    match_df['Equal'] = match_df['Train_%s' % TARGET] == match_df['Extra_%s' % TARGET]
+    match_df = match_df[['Train', 'Extra', 'Train_%s' % TARGET, 'Extra_%s' % TARGET, 'Equal']]
+    return match_df
+
+
+def generate_noleak_split(n_splits=5):
+    match_df = load_match_info()
+    match_img_ids = match_df[~match_df['Equal']]['Extra'].unique()
+
+    target_dir = opj(DATA_DIR, 'split', 'random_ext_noleak_clean_folds5')
+    os.makedirs(target_dir, exist_ok=True)
+    for idx in range(n_splits):
+        train_split_df = pd.read_csv(opj(DATA_DIR, 'split', 'random_ext_folds5', 'random_train_cv%d.csv' % idx))
+        start_num = len(train_split_df)
+        train_split_df = train_split_df[~train_split_df[ID].isin(match_img_ids)]
+        end_num = len(train_split_df)
+        print('trainset remove num: %d' % (start_num - end_num))
+
+        valid_split_df = pd.read_csv(opj(DATA_DIR, 'split', 'random_ext_folds5', 'random_valid_cv%d.csv' % idx))
+        start_num = len(valid_split_df)
+        leak_img_ids = match_df[(match_df['Equal']) & (match_df['Train'].isin(train_split_df[ID].values))]['Extra'].unique()
+        valid_split_df = valid_split_df[(~valid_split_df[ID].isin(match_img_ids)) & (~valid_split_df[ID].isin(leak_img_ids))]
+        end_num = len(valid_split_df)
+        print('validset remove num: %d' % (start_num - end_num))
+
+        fname = opj(target_dir, 'random_train_cv%d.csv' % idx)
+        print(fname, train_split_df.shape)
+        train_split_df.to_csv(fname, index=False)
+
+        fname = opj(target_dir, 'random_valid_cv%d.csv' % idx)
+        print(fname, valid_split_df.shape)
+        valid_split_df.to_csv(fname, index=False)
