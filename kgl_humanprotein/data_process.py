@@ -5,7 +5,7 @@ __all__ = ['imgids_from_directory', 'imgids_testing', 'read_img', 'load_RGBY_ima
            'mask2rles', 'rles2bboxes', 'segment_image', 'segment_images', 'resize_image', 'crop_image',
            'remove_faint_greens', 'pad_to_square', 'load_seg_trn', 'split_cells', 'generate_crops', 'fill_targets',
            'generate_meta', 'get_meta', 'create_split_file', 'create_random_split', 'load_match_info',
-           'generate_noleak_split']
+           'generate_noleak_split', 'get_img_mean_std']
 
 # Cell
 import os
@@ -624,3 +624,19 @@ def generate_noleak_split(n_splits=5):
         fname = opj(target_dir, 'random_valid_cv%d.csv' % idx)
         print(fname, valid_split_df.shape)
         valid_split_df.to_csv(fname, index=False)
+
+# Cell
+
+def get_img_mean_std(img_dir, color, img_mean, img_std):
+    img_list = os.listdir(img_dir)
+    img_list = [i for i in img_list if i.count(color) > 0]
+#     print(img_dir, len(img_list))
+    for img_id in tqdm(img_list):
+        image_path = opj(img_dir, img_id)
+        img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE) / 255
+
+        m = img.mean()
+        s = img.std()
+        img_mean.append(m)
+        img_std.append(s)
+    return img_mean, img_std
