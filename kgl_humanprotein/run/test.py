@@ -67,22 +67,26 @@ def write_dummy_submission(dir_test, imgids, dst=Path('./')):
 # Cell
 
 datasets_names = ['test', 'val']
-split_names = ['random_ext_folds5', 'random_ext_noleak_clean_folds5']
-augment_list = ['default', 'flipud', 'fliplr','transpose', 'flipud_lr',
-                'flipud_transpose', 'fliplr_transpose', 'flipud_lr_transpose']
+split_names = ['random_ext_folds5',
+               'random_ext_noleak_clean_folds5']
+augment_list = ['default', 'flipud', 'fliplr','transpose',
+                'flipud_lr', 'flipud_transpose', 'fliplr_transpose',
+                'flipud_lr_transpose']
 
 # Cell
 
-def test(out_dir, gpu_id='0', arch='class_densenet121_dropout',
+def test(out_dir,
+         gpu_id='0', arch='class_densenet121_dropout',
          num_classes=19, in_channels=4, img_size=768, crop_size=512,
-         batch_size=32, workers=3, fold=0, augment='default', seed=100,
-         seeds=None, dataset='test', split_name='random_ext_folds5',
+         batch_size=32, workers=3, fold=0, augment='default',
+         seed=100, seeds=None,
+         dataset='test', split_name='random_ext_folds5',
          predict_epoch=None):
     '''
     PyTorch Protein Classification
 
     Args:
-        outdir (str): Name of directory where model is saved.  This will
+        out_dir (str): Name of directory where model is saved.  This will
             also be used to name a newly created directory for saving the
             predicted results.
         gpu_id (str): GPU id used for predicting. Default: ``'0'``
@@ -159,7 +163,7 @@ def test(out_dir, gpu_id='0', arch='class_densenet121_dropout',
 
     # Data loading code
     if dataset == 'test':
-        test_split_file = opj(DATA_DIR, 'test', 'test.feather')
+        test_split_file = DATA_DIR/'split'/'test_27.feather'
     elif dataset == 'val':
         test_split_file = opj(DATA_DIR, 'split', split_name, 'random_valid_cv%d.csv' % fold)
     else:
