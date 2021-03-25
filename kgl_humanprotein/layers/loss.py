@@ -8,6 +8,7 @@ __all__ = ['FocalLoss', 'HardLogLoss', 'lovasz_hinge', 'SymmetricLovaszLoss', 'F
 import math
 
 from torch import nn
+import torch.nn.functional as F
 from ..config.config import *
 from .hard_example import *
 from .lovasz_losses import *
