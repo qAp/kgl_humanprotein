@@ -44,7 +44,7 @@ EPS = 1e-12
 # Cell
 
 IMG_SIZE      = 512
-NUM_CLASSES   = 28
+NUM_CLASSES   = 19
 ID            = 'Id'
 PREDICTED     = 'Predicted'
 TARGET        = 'Target'
