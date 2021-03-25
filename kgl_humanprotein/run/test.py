@@ -78,8 +78,8 @@ augment_list = ['default', 'flipud', 'fliplr','transpose',
 def test(out_dir,
          gpu_id='0', arch='class_densenet121_dropout',
          num_classes=19, in_channels=4, img_size=768, crop_size=512,
-         batch_size=32, workers=3, fold=0, augment='default',
-         seed=100, seeds=None,
+         batch_size=32, workers=3, pin_memory=True,
+         seed=100, seeds=None, fold=0, augment='default',
          dataset='test', split_name='random_ext_folds5',
          predict_epoch=None):
     '''
@@ -97,6 +97,7 @@ def test(out_dir,
         crop_size (int): Crop size. Default: 512
         batch_size (int): Train mini-batch size. Default: 32
         workers (int): Number of data loading workers. Default: 3
+        pin_memory (bool): DataLoader's ``pin_memory`` argument.
         fold (int): Index of fold. Default: 0
         augment (str):  Comma-separated string of one or more of
             the following: ``'default'``, ``'flipud'``, ``'fliplr'``,
@@ -168,6 +169,7 @@ def test(out_dir,
         test_split_file = opj(DATA_DIR, 'split', split_name, 'random_valid_cv%d.csv' % fold)
     else:
         raise ValueError('Unsupported or unknown dataset: {}!'.format(dataset))
+
     test_dataset = ProteinDataset(
         test_split_file,
         img_size=img_size,
@@ -176,16 +178,15 @@ def test(out_dir,
         in_channels=in_channels,
         transform=None,
         crop_size=crop_size,
-        random_crop=False,
-    )
+        random_crop=False)
+
     test_loader = DataLoader(
         test_dataset,
         sampler=SequentialSampler(test_dataset),
         batch_size=batch_size,
         drop_last=False,
-        num_workers=0, #num_workers=workers,
-        pin_memory=False, #pin_memory=True,
-    )
+        num_workers=workers,
+        pin_memory=pin_memory)
 
     seeds = [seed] if seeds is None else [int(i) for i in seeds.split(',')]
     for seed in seeds:

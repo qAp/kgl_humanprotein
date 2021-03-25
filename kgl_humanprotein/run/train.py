@@ -44,7 +44,7 @@ def main(out_dir, gpu_id='0', arch='class_densenet121_dropout',
          num_classes=19, in_channels=4,
          loss='FocalSymmetricLovaszHardLogLoss',
          scheduler='Adam45', epochs=55, img_size=768,
-         crop_size=512, batch_size=32, workers=3,
+         crop_size=512, batch_size=32, workers=3, pin_memory=True,
          split_name='random_ext_folds5', fold=0, clipnorm=1,
          resume=None):
     '''
@@ -67,6 +67,7 @@ def main(out_dir, gpu_id='0', arch='class_densenet121_dropout',
         crop_size (int): Crop size.  Default: 512
         batch_size (int): Train mini-batch size. Default: 32
         workers (int): Number of data loading workers. Default: 3
+        pin_memory (bool): DataLoader's ``pin_memory`` argument.
         split_name (str, optional): Split name.
             One of: ``'random_ext_folds5'``,
             or ``'random_ext_noleak_clean_folds5'``.
@@ -156,18 +157,19 @@ def main(out_dir, gpu_id='0', arch='class_densenet121_dropout',
         in_channels=in_channels,
         transform=train_transform,
         crop_size=crop_size,
-        random_crop=True,
-    )
+        random_crop=True)
+
     train_loader = DataLoader(
         train_dataset,
         sampler=RandomSampler(train_dataset),
         batch_size=batch_size,
         drop_last=True,
         num_workers=workers,
-        pin_memory=False  # pin_memory=True
-    )
+        pin_memory=pin_memory)
+
     valid_split_file = (DATA_DIR/'split'/split_name/
                         f'random_valid_cv{fold}.feather')
+
     valid_dataset = ProteinDataset(
         valid_split_file,
         img_size=img_size,
@@ -176,16 +178,15 @@ def main(out_dir, gpu_id='0', arch='class_densenet121_dropout',
         in_channels=in_channels,
         transform=None,
         crop_size=crop_size,
-        random_crop=False,
-    )
+        random_crop=False)
+
     valid_loader = DataLoader(
         valid_dataset,
         sampler=SequentialSampler(valid_dataset),
         batch_size=batch_size,
         drop_last=False,
         num_workers=workers,
-        pin_memory=False   # pin_memory=True
-    )
+        pin_memory=pin_memory)
 
     focal_loss = FocalLoss().to(DEVICE)
     log.write('** start training here! **\n')
