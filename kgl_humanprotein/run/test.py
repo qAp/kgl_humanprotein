@@ -148,11 +148,11 @@ def test(out_dir,
 
     log.write(">> Loading network:\n>>>> '{}'\n".format(network_path))
     checkpoint = torch.load(network_path)
-    _, in_features = checkpoint['state_dict']['logit.weight'].shape
-    logit_weight = torch.randn(num_classes, in_features)
-    logit_bias = torch.randn(num_classes)
-    checkpoint['state_dict']['logit.weight'] = logit_weight
-    checkpoint['state_dict']['logit.bias'] = logit_bias
+#     _, in_features = checkpoint['state_dict']['logit.weight'].shape
+#     logit_weight = torch.randn(num_classes, in_features)
+#     logit_bias = torch.randn(num_classes)
+#     checkpoint['state_dict']['logit.weight'] = logit_weight
+#     checkpoint['state_dict']['logit.bias'] = logit_bias
     model.load_state_dict(checkpoint['state_dict'])
     log.write(">>>> loaded network:\n>>>> epoch {}\n".format(checkpoint['epoch']))
 
