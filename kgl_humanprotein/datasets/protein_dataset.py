@@ -55,7 +55,10 @@ class ProteinDataset(Dataset):
         self.set_img_dir(base_dir, data_type)
 
     def set_img_dir(self, base_dir, data_type):
-        if self.img_size<=512:
+        if self.img_size <= 384:
+            self.img_dir = base_dir/data_type/'images_384'
+            self.external_img_dir = base_dir/'train'/'external_v18_384'
+        elif self.img_size<=512:
             self.img_dir = opj(base_dir, data_type, 'images')
             self.external_img_dir = opj(base_dir, 'train', 'external_v18_512')
         elif self.img_size<=768:
