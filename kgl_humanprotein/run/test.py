@@ -80,7 +80,7 @@ def test(out_dir,
          num_classes=19, in_channels=4, img_size=768, crop_size=512,
          batch_size=32, workers=3, pin_memory=True,
          seed=100, seeds=None, fold=0, augment='default',
-         dataset='test', split_name='random_ext_folds5',
+         dataset='test', sz_testset=None, split_name='random_ext_folds5',
          predict_epoch=None):
     '''
     PyTorch Protein Classification
@@ -107,6 +107,7 @@ def test(out_dir,
         seed (int):  Random seed. Default: 100
         seeds (str): Predict seed. Default: None
         dataset (str, optional): ``'test'``, or ``'val'``. Default: ``'test'``
+        sz_testset (int): Number of cell crops in the test set.  Default: ``None``
         split_name (str, optional): ``'random_ext_folds5'``, or
             ``'random_ext_noleak_clean_folds5'``. Default: 'random_ext_folds5'
         predict_epoch (int): Number epoch to predict. Default: None
@@ -164,7 +165,7 @@ def test(out_dir,
 
     # Data loading code
     if dataset == 'test':
-        test_split_file = DATA_DIR/'split'/'test_27.feather'
+        test_split_file = DATA_DIR/'split'/f'test_{sz_testset}.feather'
     elif dataset == 'val':
         test_split_file = opj(DATA_DIR, 'split', split_name, 'random_valid_cv%d.csv' % fold)
     else:
