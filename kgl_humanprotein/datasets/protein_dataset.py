@@ -5,6 +5,7 @@ __all__ = ['ProteinDataset', 'ProteinTestDataset']
 # Cell
 
 import os
+from pathlib import Path
 import numpy as np
 import cv2
 from torch.utils.data.dataset import Dataset
@@ -20,6 +21,7 @@ import re
 
 class ProteinDataset(Dataset):
     def __init__(self,
+                 dir_train_cells,
                  split_file,
                  img_size=512,
                  transform=None,
@@ -29,6 +31,7 @@ class ProteinDataset(Dataset):
                  crop_size=0,
                  random_crop=False,
                  ):
+        self.dir_train_cells = Path(dir_train_cells)
         self.is_trainset = is_trainset
         self.img_size = img_size
         self.return_label = return_label
@@ -38,7 +41,6 @@ class ProteinDataset(Dataset):
         self.random_crop = random_crop
         data_type = 'train' if is_trainset else 'test'
         split_df = pd.read_feather(split_file)
-        base_dir = DATA_DIR
 
         if EXTERNAL not in split_df.columns:
             split_df[EXTERNAL] = False
@@ -51,24 +53,6 @@ class ProteinDataset(Dataset):
         self.is_external = self.split_df[EXTERNAL].values
         self.img_ids = self.split_df[ID].values
         self.num = len(self.img_ids)
-
-        self.set_img_dir(base_dir, data_type)
-
-    def set_img_dir(self, base_dir, data_type):
-        if self.img_size <= 384:
-            self.img_dir = base_dir/data_type/'images_384'
-            self.external_img_dir = base_dir/'train'/'external_v18_384'
-        elif self.img_size<=512:
-            self.img_dir = opj(base_dir, data_type, 'images')
-            self.external_img_dir = opj(base_dir, 'train', 'external_v18_512')
-        elif self.img_size<=768:
-            self.img_dir = opj(base_dir, data_type, 'images_768')
-            self.external_img_dir = opj(base_dir, 'train', 'external_v18_768')
-        else:
-            self.img_dir = opj(base_dir, data_type, 'images_1536')
-            self.external_img_dir = opj(base_dir, 'train', 'external_v18_1536')
-        print(self.img_dir)
-        print(self.external_img_dir)
 
     def read_crop_img(self, img):
         random_crop_size = int(np.random.uniform(self.crop_size, self.img_size))
@@ -101,11 +85,11 @@ class ProteinDataset(Dataset):
         return img
 
     def __getitem__(self, index):
-        img_id = self.img_ids[index]
-        if self.is_external[index]:
-            img_dir = self.external_img_dir
-        else:
-            img_dir = self.img_dir
+        row = self.split_df.iloc[index]
+        isubset = row['subset']
+        img_id = row['Id']
+        img_dir = (self.dir_train_cells / f'humanpro-train-cells-subset{isubset}'
+                   / f'humanpro_train_cells_subset{isubset}' / 'train' / f'images_{self.img_size}')
 
         image = self.read_rgby(img_dir, img_id, index)
 

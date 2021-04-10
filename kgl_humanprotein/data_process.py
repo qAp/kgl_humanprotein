@@ -458,10 +458,10 @@ def fill_targets(row):
     return row
 
 
-def generate_meta(meta_dir, fname, dataset='train'):
+def generate_meta(dir_mdata, fname, dataset='train'):
     is_external = True if dataset == 'external' else False
 
-    label_df = pd.read_feather(DATA_DIR/'raw'/fname)
+    label_df = pd.read_feather(dir_mdata/'raw'/fname)
     for key in LABEL_NAMES.keys():
         label_df[LABEL_NAMES[key]] = 0
     meta_df = label_df.apply(fill_targets, axis=1)
@@ -474,6 +474,8 @@ def generate_meta(meta_dir, fname, dataset='train'):
         meta_df[ANTIBODY_CODE] = clf.fit_transform(meta_df[ANTIBODY])
         meta_df[ANTIBODY] = meta_df[ANTIBODY].astype(int)
 
+    meta_dir = dir_mdata/'meta'
+    meta_dir.mkdir(exist_ok=True, parents=True)
     meta_fname = meta_dir/f'{dataset}_meta.feather'
     meta_df.to_feather(meta_fname)
 
@@ -523,11 +525,11 @@ def create_split_file(data_set="train", name="train", num=None):
     split_df.to_feather(fname)
 
 
-def create_random_split(
-    train_meta, external_meta=None, n_splits=4, alias='random'):
+def create_random_split(dir_mdata, train_meta,
+                        external_meta=None, n_splits=4, alias='random'):
 
-    split_dir = DATA_DIR/'split'/f'{alias}_folds{n_splits}'
-    split_dir.mkdir(exist_ok=True)
+    split_dir = dir_mdata/'split'/f'{alias}_folds{n_splits}'
+    split_dir.mkdir(exist_ok=True, parents=True)
 
     kf = MultilabelStratifiedKFold(
         n_splits=n_splits, shuffle=True, random_state=100)
