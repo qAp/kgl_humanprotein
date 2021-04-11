@@ -59,22 +59,27 @@ split_names = ['random_ext_folds5',
                'random_ext_noleak_clean_folds5']
 
 
-def main_training(dir_data, dir_mdata, dir_results, out_dir, gpu_id='0', arch='class_densenet121_dropout',
-         num_classes=19, in_channels=4,
-         loss='FocalSymmetricLovaszHardLogLoss',
-         scheduler='Adam45', epochs=55, img_size=768,
-         crop_size=512, batch_size=32, workers=3, pin_memory=True,
-         split_name='random_ext_folds5', fold=0, clipnorm=1,
-         resume=None):
+def main_training(dir_data, dir_mdata, dir_results, out_dir, gpu_id='0',
+                  arch='class_densenet121_dropout', model_multicell=None,
+                  num_classes=19, in_channels=4, loss='FocalSymmetricLovaszHardLogLoss',
+                  scheduler='Adam45', epochs=55, img_size=768, crop_size=512, batch_size=32,
+                  workers=3, pin_memory=True, split_name='random_ext_folds5', fold=0,
+                  clipnorm=1, resume=None):
     '''
     PyTorch Protein Classification.  Main training function.
 
     Args:
+        dir_data (str, Path): Directory where training subsets are.
+        dir_mdata (str, Path): Directory where training meta data is.
+        dir_results (std, Path): Directory to save training results.
         out_dir (str):
-            Destination where trained network should be saved.
+            Name/label for this training run.  Will be used to create
+            directory under `dir_results`.
         gpu_id (str): GPU id used for training. Default: '0'
         arch (str): Model architecture.
             Default: ``'class_densenet121_dropout'``
+        model_multicell (Path, str): Path to multi-cell model
+            to start training from. Default: None
         num_classes (int): Number of classes. Default: 19
         in_channels (int): In channels. Default: 4
         loss (str, optional): Loss function.
@@ -119,7 +124,10 @@ def main_training(dir_data, dir_mdata, dir_results, out_dir, gpu_id='0', arch='c
     model_params['architecture'] = arch
     model_params['num_classes'] = num_classes
     model_params['in_channels'] = in_channels
-    model = init_network(model_params)
+    model = init_network(model_params, model_multicell=model_multicell)
+
+    if model_multicell is not None:
+        torch.load(model_multicell)
 
     # move network to gpu
     model = DataParallel(model)
@@ -166,8 +174,7 @@ def main_training(dir_data, dir_mdata, dir_results, out_dir, gpu_id='0', arch='c
 
     # Data loading code
     train_transform = train_multi_augment2
-    train_split_file = (dir_mdata/'split'/split_name/
-                        f'random_train_cv{fold}.feather')
+    train_split_file = dir_mdata / 'split'/ split_name / f'random_train_cv{fold}.feather'
     train_dataset = ProteinDataset(
         dir_data,
         train_split_file,
