@@ -202,7 +202,7 @@ def main_training(dir_data, dir_mdata, dir_results, out_dir, gpu_id='0',
         random_crop=True)
 
     label_weights = get_label_weights(train_dataset.split_df)
-    weights = torch.from_numpy(split_trn_cv0['Target']
+    weights = torch.from_numpy(train_dataset.split_df['Target']
                                .apply(lambda o: label_weights[o]).values)
     sampler = WeightedRandomSampler(weights, len(weights))
 
