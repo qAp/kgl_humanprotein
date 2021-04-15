@@ -152,9 +152,6 @@ def main_training(dir_data, dir_mdata, dir_results, out_dir, gpu_id='0',
     model_params['in_channels'] = in_channels
     model = init_network(model_params, model_multicell=model_multicell)
 
-    if model_multicell is not None:
-        torch.load(model_multicell)
-
     # move network to gpu
     model = DataParallel(model)
     model.to(DEVICE)
