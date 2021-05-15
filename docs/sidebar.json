@@ -1,6 +1,29 @@
 {
   "kgl_humanprotein": {
     "Overview": "/",
-    "module name here": "/core"
+    "module name here": "/core",
+    "Config": "/config.config",
+    "`data_process`": "/data_process",
+    "`datasets.protein_dataset`": "/datasets.protein_dataset",
+    "`datasets.tool`": "/datasets.tool",
+    "`layers.backbone.densenet`": "/layers.backbone.densenet",
+    "`layers.backbone.inception_v3`": "/layers.backbone.inception_v3",
+    "`layers.backbone.resnet`": "/layers.backbone.resnet",
+    "`layers.hard_example`": "/layers.hard_example",
+    "`layers.loss`": "/layers.loss",
+    "`layers.lovasz_losses`": "/layers.lovasz_losses",
+    "`layers.scheduler`": "/layers.scheduler",
+    "`layers.scheduler_base`": "/layers.scheduler_base",
+    "`networks.densenet`": "/networks.densenet",
+    "`networks.imageclsnet`": "/networks.imageclsnet",
+    "`networks.inception_v3`": "/networks.inception_v3",
+    "`networks.resnet`": "/networks.resnet",
+    "`run.test`": "/run.test",
+    "`run.train`": "/run.train",
+    "`utils.augment_util`": "/utils.augment_util",
+    "Title": "/inference",
+    "`utils.log_util`": "/utils.log_util",
+    "Notes": "/Notes",
+    "mmdetection for segmentation [training]": "/mmdetection_for_segmentation_training_its7171"
   }
 }

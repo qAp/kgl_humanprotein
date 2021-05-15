@@ -12,6 +12,75 @@ entries:
     - output: web,pdf
       title: module name here
       url: /core
+    - output: web,pdf
+      title: Config
+      url: /config.config
+    - output: web,pdf
+      title: '`data_process`'
+      url: /data_process
+    - output: web,pdf
+      title: '`datasets.protein_dataset`'
+      url: /datasets.protein_dataset
+    - output: web,pdf
+      title: '`datasets.tool`'
+      url: /datasets.tool
+    - output: web,pdf
+      title: '`layers.backbone.densenet`'
+      url: /layers.backbone.densenet
+    - output: web,pdf
+      title: '`layers.backbone.inception_v3`'
+      url: /layers.backbone.inception_v3
+    - output: web,pdf
+      title: '`layers.backbone.resnet`'
+      url: /layers.backbone.resnet
+    - output: web,pdf
+      title: '`layers.hard_example`'
+      url: /layers.hard_example
+    - output: web,pdf
+      title: '`layers.loss`'
+      url: /layers.loss
+    - output: web,pdf
+      title: '`layers.lovasz_losses`'
+      url: /layers.lovasz_losses
+    - output: web,pdf
+      title: '`layers.scheduler`'
+      url: /layers.scheduler
+    - output: web,pdf
+      title: '`layers.scheduler_base`'
+      url: /layers.scheduler_base
+    - output: web,pdf
+      title: '`networks.densenet`'
+      url: /networks.densenet
+    - output: web,pdf
+      title: '`networks.imageclsnet`'
+      url: /networks.imageclsnet
+    - output: web,pdf
+      title: '`networks.inception_v3`'
+      url: /networks.inception_v3
+    - output: web,pdf
+      title: '`networks.resnet`'
+      url: /networks.resnet
+    - output: web,pdf
+      title: '`run.test`'
+      url: /run.test
+    - output: web,pdf
+      title: '`run.train`'
+      url: /run.train
+    - output: web,pdf
+      title: '`utils.augment_util`'
+      url: /utils.augment_util
+    - output: web,pdf
+      title: Title
+      url: /inference
+    - output: web,pdf
+      title: '`utils.log_util`'
+      url: /utils.log_util
+    - output: web,pdf
+      title: Notes
+      url: /Notes
+    - output: web,pdf
+      title: mmdetection for segmentation [training]
+      url: /mmdetection_for_segmentation_training_its7171
     output: web
     title: kgl_humanprotein
   output: web

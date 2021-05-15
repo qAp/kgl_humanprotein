@@ -1,12 +1,12 @@
 ---
 
-title: Project name here
+title: kgl_humanprotein
 
 keywords: fastai
 sidebar: home_sidebar
 
-summary: "Summary description here."
-description: "Summary description here."
+summary: "A top 12% solution for Human Protein Atlas Single-cell Classification Kaggle"
+description: "A top 12% solution for Human Protein Atlas Single-cell Classification Kaggle"
 nb_path: "nbs/index.ipynb"
 ---
 <!--
@@ -30,70 +30,66 @@ nb_path: "nbs/index.ipynb"
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This file will become your README and also the index of your documentation.</p>
+<p>Competition page: <a href="https://www.kaggle.com/c/hpa-single-cell-image-classification/">https://www.kaggle.com/c/hpa-single-cell-image-classification/</a></p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Install">Install<a class="anchor-link" href="#Install"> </a></h2>
+<h2 id="Main-approach">Main approach<a class="anchor-link" href="#Main-approach"> </a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><code>pip install your_project_name</code></p>
+<ol>
+<li>No segmentation training.</li>
+<li>Train classifier on single-label cells.</li>
+<li>Generate labels for multi-label images' cells using model from step 2.</li>
+<li>Train classifier on single-label cells and cells with generated labels.</li>
+</ol>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="How-to-use">How to use<a class="anchor-link" href="#How-to-use"> </a></h2>
+<h2 id="What-didn't-work-well">What didn't work well<a class="anchor-link" href="#What-didn't-work-well"> </a></h2>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Fill me in please! Don't forget code examples:</p>
+<ol>
+<li>The use of 'soft' labels.  </li>
+</ol>
 
 </div>
 </div>
 </div>
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span>
-</pre></div>
-
-    </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Reference-&amp;-Resources">Reference &amp; Resources<a class="anchor-link" href="#Reference-&amp;-Resources"> </a></h1>
 </div>
 </div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>2</pre>
 </div>
-
-</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><a href="https://github.com/CellProfiling/HPA-competition-solutions/tree/master/bestfitting">https://github.com/CellProfiling/HPA-competition-solutions/tree/master/bestfitting</a></li>
+<li><a href="https://www.kaggle.com/its7171/mmdetection-for-segmentation-training">https://www.kaggle.com/its7171/mmdetection-for-segmentation-training</a></li>
+<li><a href="https://www.kaggle.com/its7171/mmdetection-for-segmentation-inference">https://www.kaggle.com/its7171/mmdetection-for-segmentation-inference</a></li>
+<li><a href="https://www.kaggle.com/lnhtrang/hpa-public-data-download-and-hpacellseg">https://www.kaggle.com/lnhtrang/hpa-public-data-download-and-hpacellseg</a></li>
+<li><a href="https://www.kaggle.com/dschettler8845/hpa-cellwise-classification-inference">https://www.kaggle.com/dschettler8845/hpa-cellwise-classification-inference</a></li>
+<li><a href="https://www.kaggle.com/dschettler8845/hpa-cellwise-classification-training">https://www.kaggle.com/dschettler8845/hpa-cellwise-classification-training</a></li>
+<li><a href="https://www.kaggle.com/thedrcat/hpa-single-cell-classification-eda">https://www.kaggle.com/thedrcat/hpa-single-cell-classification-eda</a></li>
+<li><a href="https://www.kaggle.com/c/hpa-single-cell-image-classification/discussion/216430">https://www.kaggle.com/c/hpa-single-cell-image-classification/discussion/216430</a></li>
+</ul>
 
 </div>
 </div>
-
 </div>
-    {% endraw %}
-
 </div>
  
 
