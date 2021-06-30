@@ -1,8 +1,5 @@
 # kgl_humanprotein
-> A top 12% solution for Human Protein Atlas Single-cell Classification Kaggle
-
-
-Competition page: https://www.kaggle.com/c/hpa-single-cell-image-classification/
+Solution for Human Protein Atlas Single-cell Classification Kaggle: https://www.kaggle.com/c/hpa-single-cell-image-classification/
 
 ## Main approach
 
